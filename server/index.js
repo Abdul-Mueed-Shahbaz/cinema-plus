@@ -1,11 +1,22 @@
+require('dotenv').config();
 const express = require('express');
+const mongoose = require('mongoose');
 const path = require('path');
 
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config({ path: path.join(__dirname, '../.env') });
 }
 
-require('./db/mongoose');
+const mongoURL = process.env.MONGODB_URL;
+
+mongoose
+  .connect(mongoURL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true,
+  })
+  .then(() => console.log('DataBase has been connected !'))
+  .catch((err) => console.log('Cannot connect to database', err.message));
 
 // Routes
 const userRouter = require('./routes/users');
@@ -23,7 +34,7 @@ const port = process.env.PORT || 8080;
 app.use(express.static(path.join(__dirname, '../../client/build')));
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   // Website you wish to allow to connect
   res.setHeader('Access-Control-Allow-Origin', '*');
 
